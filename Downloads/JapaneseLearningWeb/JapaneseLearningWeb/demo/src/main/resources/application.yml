@@ -87,15 +87,15 @@ security:
 # External API Configuration
 external-api:
   gemini:
-    api-key: AIzaSyCMPEqfVe7VyMOBOPd0EG5o5NR7AsnymAM
+    api-key: YOUR_GEMINI_API_KEY
     model: gemini-3-flash-preview
   
   openrouter:
-    api-key: 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
+    api-key: YOUR_OPENROUTER_API_KEY
     model: mistralai/mistral-7b-instruct
   
   sendgrid:
-    api-key: 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
+    api-key: YOUR_SENDGRID_API_KEY
   
   momo:
     api-url: https://test-payment.momo.vn/gw_payment/transactionProcessor
