@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Profile - Japanese Learning Web')}"></head>
+<body>
+    <nav th:replace="~{fragments/common :: navbar('profile')}"></nav>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h2 class="mb-4">My Profile</h2>
+                        <form id="profileForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="profileName" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="profileName" value="Learner">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="profileEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="profileEmail" value="learner@example.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="profilePhone" class="form-label">Phone</label>
+                                    <input type="text" class="form-control" id="profilePhone" value="">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="profileLevel" class="form-label">JLPT Level</label>
+                                    <select id="profileLevel" class="form-select">
+                                        <option>N5</option>
+                                        <option>N4</option>
+                                        <option>N3</option>
+                                        <option>N2</option>
+                                        <option>N1</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-4">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <th:block th:replace="~{fragments/common :: scripts}"></th:block>
+    <script>
+        document.getElementById('profileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            Notification.success('Profile UI is synchronized. Integrate profile API next.');
+        });
+    </script>
+</body>
+</html>
