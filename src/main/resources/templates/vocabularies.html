@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách từ vựng</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: #26bba4;
+            padding: 20px;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f7fa;
+            color: #26bba4;
+        }
+
+        .btn-detail {
+            background: #26bba4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h2>📚 Danh sách từ vựng</h2>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Kanji</th>
+            <th>Hiragana</th>
+            <th>Romaji</th>
+            <th>Ý nghĩa</th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="vocab : ${vocabularies}">
+            <td th:text="${vocab.kanji}"></td>
+            <td th:text="${vocab.hiragana}"></td>
+            <td th:text="${vocab.romaji}"></td>
+            <td th:text="${vocab.meaning}"></td>
+            <td>
+                <button class="btn-detail" onclick="viewDetail(this)">Chi tiết</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <span class="close-btn" onclick="closeModal()">✖</span>
+        <h3>Chi tiết</h3>
+        <p id="kanji"></p>
+        <p id="hiragana"></p>
+        <p id="romaji"></p>
+        <p id="meaning"></p>
+    </div>
+</div>
+
+<script>
+function viewDetail(btn) {
+    const row = btn.closest("tr");
+
+    document.getElementById("kanji").innerText = "Kanji: " + row.children[0].innerText;
+    document.getElementById("hiragana").innerText = "Hiragana: " + row.children[1].innerText;
+    document.getElementById("romaji").innerText = "Romaji: " + row.children[2].innerText;
+    document.getElementById("meaning").innerText = "Ý nghĩa: " + row.children[3].innerText;
+
+    document.getElementById("modal").classList.add("active");
+}
+
+function closeModal() {
+    document.getElementById("modal").classList.remove("active");
+}
+</script>
+
+</body>
+</html>
