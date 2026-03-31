@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\JapaneseLearningWeb.props" />
-</Project>
