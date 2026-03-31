@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head(${pageTitle})"></head>
+<body>
+<style>
+    /* ── COURSE PAGE ── */
+    ...existing code...
+</style>
+
+<div th:replace="fragments/sidebar :: sidebar('courses')"></div>
+<main class="main-content">
+    ...existing code...
+</main>
+
+<!-- Course Detail Modal -->
+<div class="modal-overlay" id="courseModal">
+    ...existing code...
+</div>
+
+<!-- Admin Course Modal (Premium UI) -->
+<div class="modal-overlay" id="adminCourseModal" style="z-index: 2005;">
+    ...existing code...
+</div>
+
+<script th:inline="javascript">
+...existing code...
+</script>
+</body>
+</html>

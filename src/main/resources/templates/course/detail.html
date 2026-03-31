@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.title} + ' - Học Tiếng Nhật'"></title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: #f5f7fa; }
+
+        :root {
+            --primary: #26BEBE;
+            --secondary: #F5A623;
+            --dark: #1a1a1a;
+            --success: #51cf66;
+            --danger: #ff6b6b;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 70px; z-index: 1000;
+            display: flex; align-items: center; padding: 0 5%;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-container { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 900; font-size: 1.3rem; color: var(--primary); text-decoration: none; }
+        nav a { text-decoration: none; color: var(--dark); margin-left: 30px; font-weight: 600; transition: 0.3s; cursor: pointer; }
+        nav a:hover { color: var(--primary); }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 70px; padding: 50px 5%;
+            background: linear-gradient(135deg, rgba(38, 190, 190, 0.1) 0%, rgba(245, 166, 35, 0.05) 100%);
+            border-bottom: 2px solid rgba(38, 190, 190, 0.2);
+        }
+        .hero-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .hero-image { height: 300px; background: linear-gradient(135deg, var(--primary) 0%, #1fa99d 100%);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 6rem; }
+        .hero-title { font-size: 2.5rem; font-weight: 900; color: var(--dark); margin-bottom: 15px; }
+        .hero-desc { font-size: 1.1rem; color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .hero-stats { display: flex; gap: 30px; margin: 25px 0; }
+        .stat { display: flex; flex-direction: column; }
+        .stat-number { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
+        .stat-label { font-size: 0.9rem; color: #888; }
+
+        /* Main Container */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 5%; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+
+        /* Content */
+        .content h2 { font-size: 1.8rem; font-weight: 900; color: var(--dark); margin: 30px 0 20px 0; margin-top: 40px; }
+        .content p { color: #666; line-height: 1.8; margin-bottom: 20px; }
+
+        /* Lessons */
+        .lessons-grid { display: grid; gap: 15px; }
+        .lesson-item {
+            padding: 15px; background: white; border-radius: 8px; border-left: 4px solid var(--primary);
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: space-between;
+        }
+        .lesson-item:hover { background: #f9f9f9; transform: translateX(5px); }
+        .lesson-info h4 { color: var(--dark); font-weight: 700; margin-bottom: 5px; }
+        .lesson-info p { color: #888; font-size: 0.9rem; }
+        .lesson-arrow { font-size: 1.5rem; color: var(--primary); }
+
+        /* Sidebar */
+        .sidebar { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 90px; }
+        .sidebar-title { font-weight: 900; color: var(--dark); margin-bottom: 20px; font-size: 1.1rem; }
+        .sidebar-info { margin-bottom: 20px; }
+        .info-label { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
+        .info-value { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+        .price-badge { display: inline-block; padding: 8px 15px; background: var(--success); color: white;
+            border-radius: 6px; font-weight: 700; font-size: 0.9rem; }
+        .price-badge.paid { background: var(--danger); }
+
+        .enroll-btn {
+            width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
+            border-radius: 8px; font-weight: 900; font-size: 1rem; cursor: pointer;
+            transition: 0.3s; margin-top: 15px;
+        }
+        .enroll-btn:hover { background: #1fa99d; transform: translateY(-2px); }
+        .enroll-btn.enrolled { background: #888; cursor: not-allowed; }
+
+        /* Progress */
+        .progress-container { margin-top: 20px; }
+        .progress-label { font-size: 0.9rem; color: #888; margin-bottom: 8px; }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); transition: 0.3s; width: 0%; }
+
+        @media (max-width: 768px) {
+            .hero-container { grid-template-columns: 1fr; }
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .hero-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">📚 JLW</a>
+            <div style="display: flex; gap: 20px;">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/courses">Khóa học</a>
+                <a href="/profile">Tài khoản</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-container">
+            <div>
+                <h1 class="hero-title" id="courseTitle">Loading...</h1>
+                <p class="hero-desc" id="courseDescription"></p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" id="lessonCount">0</div>
+                        <div class="stat-label">Bài học</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="enrollmentCount">0</div>
+                        <div class="stat-label">Học viên</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image" id="courseIcon">N</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Content -->
+        <div class="content">
+            <h2>📚 Bài học trong khóa</h2>
+            <div class="lessons-grid" id="lessonsContainer">
+                <p style="text-align: center; color: #999;">Đang tải bài học...</p>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-title">Thông tin khóa học</div>
+
+            <div class="sidebar-info">
+                <div class="info-label">Loại khóa học</div>
+                <span class="price-badge" id="courseBadge">Miễn phí</span>
+            </div>
+
+            <div class="sidebar-info">
+                <div class="info-label">Cấp độ</div>
+                <div class="info-value" id="courseLevel">N5</div>
+            </div>
+
+            <div class="sidebar-info">
+                <div class="info-label">Giá tiền</div>
+                <div class="info-value" id="coursePrice">0 ₫</div>
+            </div>
+
+            <button class="enroll-btn" id="enrollBtn" onclick="enrollCourse()">Tham gia khóa học</button>
+
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-label">Tiến độ học</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+                <div style="text-align: center; font-size: 0.85rem; color: #888; margin-top: 8px;">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const courseId = new URLSearchParams(window.location.search).get('id') || window.location.pathname.split('/').pop();
+        let isEnrolled = false;
+
+        // Load course details
+        async function loadCourse() {
+            try {
+                const response = await fetch(`/api/courses/${courseId}`);
+                const data = await response.json();
+                const course = data.data;
+
+                document.getElementById('courseTitle').textContent = course.title;
+                document.getElementById('courseDescription').textContent = course.description || 'Khóa học chất lượng từ các giáo viên chuyên nghiệp';
+                document.getElementById('courseIcon').textContent = course.title.charAt(0).toUpperCase();
+                document.getElementById('courseLevel').textContent = course.categoryName || 'N5';
+                document.getElementById('lessonCount').textContent = course.lessonCount || 0;
+                document.getElementById('enrollmentCount').textContent = course.enrollmentCount || 0;
+                
+                const badge = document.getElementById('courseBadge');
+                if (course.isFree) {
+                    badge.textContent = 'Miễn phí';
+                    badge.style.background = '#51cf66';
+                } else {
+                    badge.textContent = 'Trả phí';
+                    badge.style.background = '#ff6b6b';
+                }
+                
+                document.getElementById('coursePrice').textContent = course.isFree ? 'Miễn phí' : (course.price ? `${course.price.toLocaleString()} ₫` : 'Liên hệ');
+                
+                loadLessons();
+            } catch (error) {
+                console.error('Error loading course:', error);
+            }
+        }
+
+        // Load lessons
+        async function loadLessons() {
+            try {
+                const response = await fetch(`/api/lessons/course/${courseId}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('lessonsContainer');
+                if (!data.data || data.data.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">Chưa có bài học nào</p>';
+                    return;
+                }
+
+                let html = '';
+                data.data.forEach((lesson, index) => {
+                    html += `
+                        <div class="lesson-item" onclick="window.location.href='/lesson/${lesson.lessonId}'">
+                            <div class="lesson-info">
+                                <h4>Bài ${index + 1}: ${lesson.title}</h4>
+                                <p>${lesson.content ? lesson.content.substring(0, 100) + '...' : 'Bài học lý thuyết và bài tập'}</p>
+                            </div>
+                            <div class="lesson-arrow">→</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading lessons:', error);
+                document.getElementById('lessonsContainer').innerHTML = '<p style="text-align: center; color: #999;">Lỗi khi tải bài học</p>';
+            }
+        }
+
+        function enrollCourse() {
+            const enrollBtn = document.getElementById('enrollBtn');
+            
+            fetch(`/api/enrollment/enroll/${courseId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success || data.message === 'Already enrolled') {
+                    isEnrolled = true;
+                    enrollBtn.textContent = '✓ Đã tham gia';
+                    enrollBtn.classList.add('enrolled');
+                    document.getElementById('progressContainer').style.display = 'block';
+                    alert('Chúc mừng bạn tham gia khóa học!');
+                } else {
+                    alert('Lỗi: ' + (data.message || 'Không thể tham gia khóa học'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi khi tham gia khóa học');
+            });
+        }
+
+        // Load on page load
+        loadCourse();
+    </script>
+</body>
+</html>
