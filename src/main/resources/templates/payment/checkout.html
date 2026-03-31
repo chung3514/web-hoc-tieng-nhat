@@ -158,7 +158,13 @@
       note.textContent = msg;
 
       window.setTimeout(() => {
-        const url = '/payment/result?success=true&orderId=' + encodeURIComponent(orderId) + '&message=' + encodeURIComponent(msg);
+        let url = '/payment/checkout-qr?orderId=' + encodeURIComponent(orderId)
+          + '&method=' + encodeURIComponent(method)
+          + '&amount=' + encodeURIComponent(String(amount));
+        if (method !== 'MOMO') {
+          url = '/payment/checkout-success?orderId=' + encodeURIComponent(orderId)
+            + '&message=' + encodeURIComponent(msg);
+        }
         window.location.href = url;
       }, 500);
     }
