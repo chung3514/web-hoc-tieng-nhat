@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head(${pageTitle})"></head>
+<body>
+<style>
+    .settings-container{max-width:800px;margin:0 auto;padding:20px}
+    .settings-header{background:linear-gradient(135deg,#1a2e1a 0%,#1e3a2e 50%,#0f4a3a 100%);border-radius:16px;padding:32px;color:white;margin-bottom:28px;text-align:center}
+    .settings-title{font-size:24px;font-weight:800;margin-bottom:4px}
+    .settings-desc{font-size:14px;opacity:.8}
+    .settings-content{background:white;border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .section-title{font-size:18px;font-weight:800;color:#111;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .setting-group{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}
+    .setting-group:last-child{border-bottom:none;padding-bottom:0}
+    .setting-item{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .setting-info{flex:1;margin-right:16px}
+    .setting-name{font-size:15px;font-weight:700;color:#111;margin-bottom:4px}
+    .setting-desc{font-size:12px;color:#666}
+    .toggle-switch{position:relative;display:inline-block;width:50px;height:24px}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:24px}
+    .toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}
+    input:checked + .toggle-slider{background-color:var(--primary-color)}
+    input:checked + .toggle-slider:before{transform:translateX(26px)}
+    .btn-setting{background:var(--primary-color);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+    .btn-setting:hover{background:#1fa99d}
+    .btn-setting.danger{background:#ef4444}
+    .btn-setting.danger:hover{background:#dc2626}
+    .form-group{margin-bottom:20px}
+    .form-label{font-size:14px;font-weight:700;color:#555;margin-bottom:6px;display:block}
+    .form-control{width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;transition:.15s}
+    .form-control:focus{border-color:var(--primary-color)}
+    .select-wrapper{position:relative}
+    .select-wrapper select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");background-position:right 12px center;background-repeat:no-repeat;background-size:16px 16px;padding-right:40px}
+    .danger-zone{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:20px;margin-top:24px}
+    .danger-title{font-size:16px;font-weight:800;color:#dc2626;margin-bottom:8px}
+    .danger-desc{font-size:13px;color:#991b1b;margin-bottom:16px}
+    .notification-item{display:flex;align-items:start;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:12px}
+    .notification-icon{width:32px;height:32px;border-radius:6px;background:var(--primary-color);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;flex-shrink:0}
+    .notification-content{flex:1}
+    .notification-title{font-size:14px;font-weight:700;color:#111;margin-bottom:2px}
+    .notification-desc{font-size:12px;color:#666}
+    .privacy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px}
+    .privacy-card{background:#f8f9fa;border-radius:10px;padding:16px;text-align:center}
+    .privacy-icon{font-size:24px;margin-bottom:8px}
+    .privacy-title{font-size:14px;font-weight:700;color:#111;margin-bottom:4px}
+    .privacy-desc{font-size:12px;color:#666}
+</style>
+
+    <div th:replace="fragments/sidebar :: sidebar('settings')"></div>
+    <main class="main-content">
+        <div th:replace="fragments/topbar :: topbar('/settings', 'Cài đặt', '#', 'Hồ sơ')"></div>
+        <div class="container">
+
+            <!-- Settings Header -->
+            <div class="settings-header">
+                <div class="settings-title">⚙️ Cài đặt tài khoản</div>
+                <div class="settings-desc">Quản lý cài đặt và tùy chọn tài khoản của bạn</div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="settings-content">
+                <div class="section-title">
+                    <span>🔔</span>
+                    Thông báo
+                </div>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Thông báo email</div>
+                            <div class="setting-desc">Nhận thông báo qua email về hoạt động tài khoản</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Thông báo đẩy</div>
+                            <div class="setting-desc">Nhận thông báo đẩy trong trình duyệt</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pushNotifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Nhắc nhở học tập</div>
+                            <div class="setting-desc">Nhận nhắc nhở hàng ngày về việc học</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="studyReminders" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Cập nhật bài học</div>
+                            <div class="setting-desc">Thông báo khi có bài học mới</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="lessonUpdates" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Preferences -->
+            <div class="settings-content">
+                <div class="section-title">
+                    <span>📚</span>
+                    Tùy chọn học tập
+                </div>
+                <div class="setting-group">
+                    <div class="form-group">
+                        <label class="form-label">Mục tiêu JLPT</label>
+                        <div class="select-wrapper">
+                            <select class="form-control" id="jlptTarget">
+                                <option value="N5">N5 - Cơ bản</option>
+                                <option value="N4">N4 - Trung cấp</option>
+                                <option value="N3">N3 - Nâng cao</option>
+                                <option value="N2">N2 - Cao cấp</option>
+                                <option value="N1">N1 - Thành thạo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số bài học mỗi ngày</label>
+                        <div class="select-wrapper">
+                            <select class="form-control" id="dailyLessons">
+                                <option value="1">1 bài</option>
+                                <option value="2">2 bài</option>
+                                <option value="3" selected>3 bài</option>
+                                <option value="5">5 bài</option>
+                                <option value="10">10 bài</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Tự động phát âm</div>
+                            <div class="setting-desc">Tự động phát âm khi học từ vựng</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoPronunciation" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-name">Hiển thị phiên âm</div>
+                            <div class="setting-desc">Hiển thị phiên âm romaji</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showRomaji" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <button class="btn-setting" onclick="saveLearningPrefs()">💾 Lưu tùy chọn</button>
+            </div>
+
+            <!-- Privacy & Security -->
+            <div class="settings-content">
+                <div class="section-title">
+                    <span>🔒</span>
+                    Bảo mật & Quyền riêng tư
+                </div>
+                <div class="privacy-grid">
+                    <div class="privacy-card">
+                        <div class="privacy-icon">🔑</div>
+                        <div class="privacy-title">Đổi mật khẩu</div>
+                        <div class="privacy-desc">Cập nhật mật khẩu tài khoản</div>
+                        <button class="btn-setting" style="margin-top:12px;" onclick="changePassword()">Đổi mật khẩu</button>
+                    </div>
+                    <div class="privacy-card">
+                        <div class="privacy-icon">📱</div>
+                        <div class="privacy-title">Xác thực 2 yếu tố</div>
+                        <div class="privacy-desc">Bảo vệ tài khoản với 2FA</div>
+                        <button class="btn-setting" style="margin-top:12px;" onclick="setup2FA()">Thiết lập 2FA</button>
+                    </div>
+                    <div class="privacy-card">
+                        <div class="privacy-icon">📊</div>
+                        <div class="privacy-title">Xuất dữ liệu</div>
+                        <div class="privacy-desc">Tải xuống dữ liệu cá nhân</div>
+                        <button class="btn-setting" style="margin-top:12px;" onclick="exportData()">Xuất dữ liệu</button>
+                    </div>
+                    <div class="privacy-card">
+                        <div class="privacy-icon">🗑️</div>
+                        <div class="privacy-title">Xóa tài khoản</div>
+                        <div class="privacy-desc">Xóa vĩnh viễn tài khoản</div>
+                        <button class="btn-setting danger" style="margin-top:12px;" onclick="deleteAccount()">Xóa tài khoản</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+                <div class="danger-title">🚨 Khu vực nguy hiểm</div>
+                <div class="danger-desc">Các hành động dưới đây không thể hoàn tác. Hãy cân nhắc kỹ trước khi thực hiện.</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn-setting danger" onclick="resetProgress()">Đặt lại tiến độ</button>
+                    <button class="btn-setting danger" onclick="clearData()">Xóa tất cả dữ liệu</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="passwordModal" style="z-index: 2005;">
+    <div class="pa-modal-box">
+        <div class="pa-modal-header">
+            <h5 class="pa-modal-title">🔑 Đổi mật khẩu</h5>
+            <button class="pa-btn-close" onclick="closeModal('passwordModal')">✕</button>
+        </div>
+        <form id="passwordForm" onsubmit="updatePassword(event)">
+            <div class="pa-modal-body">
+                <div class="pa-form-group">
+                    <label class="pa-form-label">Mật khẩu hiện tại</label>
+                    <input type="password" id="currentPassword" class="pa-form-control" required>
+                </div>
+                <div class="pa-form-group">
+                    <label class="pa-form-label">Mật khẩu mới</label>
+                    <input type="password" id="newPassword" class="pa-form-control" required minlength="8">
+                </div>
+                <div class="pa-form-group">
+                    <label class="pa-form-label">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="confirmPassword" class="pa-form-control" required>
+                </div>
+            </div>
+            <div class="pa-modal-footer">
+                <button type="button" class="pa-btn pa-btn-light" onclick="closeModal('passwordModal')">Hủy</button>
+                <button type="submit" class="pa-btn pa-btn-primary">Cập nhật mật khẩu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Save learning preferences
+    async function saveLearningPrefs() {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = 'Đang lưu...';
+
+        const prefs = {
+            jlptTarget: document.getElementById('jlptTarget').value,
+            dailyLessons: document.getElementById('dailyLessons').value,
+            autoPronunciation: document.getElementById('autoPronunciation').checked,
+            showRomaji: document.getElementById('showRomaji').checked
+        };
+
+        try {
+            const res = await fetch('/api/user/preferences', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(prefs)
+            });
+            
+            if (res.ok) {
+                alert('Cập nhật tùy chọn thành công!');
+            } else {
+                alert('Lỗi cập nhật tùy chọn');
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💾 Lưu tùy chọn';
+        }
+    }
+
+    // Modal functions
+    function changePassword() {
+        document.getElementById('passwordModal').classList.add('open');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('open');
+    }
+
+    async function updatePassword(e) {
+        e.preventDefault();
+        const newPass = document.getElementById('newPassword').value;
+        const confirmPass = document.getElementById('confirmPassword').value;
+        
+        if (newPass !== confirmPass) {
+            alert('Mật khẩu xác nhận không khớp!');
+            return;
+        }
+
+        const data = {
+            currentPassword: document.getElementById('currentPassword').value,
+            newPassword: newPass
+        };
+
+        try {
+            const res = await fetch('/api/user/password', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            
+            if (res.ok) {
+                alert('Đổi mật khẩu thành công!');
+                closeModal('passwordModal');
+                document.getElementById('passwordForm').reset();
+            } else {
+                const error = await res.json();
+                alert('Lỗi: ' + (error.message || 'Không thể đổi mật khẩu'));
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        }
+    }
+
+    // Other functions
+    function setup2FA() {
+        alert('Tính năng 2FA sẽ được triển khai trong phiên bản tiếp theo!');
+    }
+
+    function exportData() {
+        alert('Đang chuẩn bị file xuất dữ liệu...');
+        // Implement data export
+    }
+
+    async function deleteAccount() {
+        if (!confirm('🚨 BẠN CHẮC CHẮN MUỐN XÓA TÀI KHOẢN?\n\nHành động này sẽ:\n- Xóa vĩnh viễn tất cả dữ liệu\n- Hủy tất cả đăng ký\n- Không thể hoàn tác\n\nBạn có muốn tiếp tục?')) return;
+        
+        try {
+            const res = await fetch('/api/user/account', { method: 'DELETE' });
+            if (res.ok) {
+                alert('Tài khoản đã được xóa. Bạn sẽ được đăng xuất...');
+                window.location.href = '/logout';
+            } else {
+                alert('Không thể xóa tài khoản');
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        }
+    }
+
+    async function resetProgress() {
+        if (!confirm('Đặt lại toàn bộ tiến độ học tập? Hành động này không thể hoàn tác!')) return;
+        
+        try {
+            const res = await fetch('/api/user/progress/reset', { method: 'POST' });
+            if (res.ok) {
+                alert('Đã đặt lại tiến độ học tập!');
+                location.reload();
+            } else {
+                alert('Không thể đặt lại tiến độ');
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        }
+    }
+
+    async function clearData() {
+        if (!confirm('Xóa tất cả dữ liệu cá nhân? Hành động này không thể hoàn tác!')) return;
+        
+        try {
+            const res = await fetch('/api/user/data/clear', { method: 'POST' });
+            if (res.ok) {
+                alert('Đã xóa tất cả dữ liệu!');
+                location.reload();
+            } else {
+                alert('Không thể xóa dữ liệu');
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        }
+    }
+</script>
+</body>
+</html>
