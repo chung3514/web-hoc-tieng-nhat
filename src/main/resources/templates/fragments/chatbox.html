@@ -28,11 +28,19 @@
                     <div class="chat-message bot-message">
                         Chào em! Sensei ở đây để giúp em học tiếng Nhật. Em có câu hỏi gì về ngữ pháp, từ vựng hay Kanji không? 🎓
                     </div>
+                    <div class="quick-prompts" id="ai-quick-prompts">
+                        <button type="button" class="quick-prompt" onclick="window.pickAiPrompt('Giải thích ngữ pháp 〜てしまう dễ hiểu kèm ví dụ')">Ngữ pháp nhanh</button>
+                        <button type="button" class="quick-prompt" onclick="window.pickAiPrompt('Cho 5 từ vựng N5 về chủ đề trường học')">Từ vựng N5</button>
+                        <button type="button" class="quick-prompt" onclick="window.pickAiPrompt('Mẹo nhớ Kanji 人 và 学')">Mẹo nhớ Kanji</button>
+                    </div>
                 </div>
                 
                 <div class="chat-input-area">
                     <input type="text" id="ai-chat-input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off"/>
-                    <button id="ai-chat-send" onclick="window.sendAiChat()">Gửi</button>
+                    <div class="chat-input-actions">
+                        <button type="button" class="chat-clear-btn" title="Xóa hội thoại" onclick="window.clearAiChat()">↺</button>
+                        <button type="button" id="ai-chat-send" onclick="window.sendAiChat()">Gửi</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -190,6 +198,28 @@
                 align-self: flex-start;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             }
+            .quick-prompts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 4px;
+            }
+            .quick-prompt {
+                border: 1px solid rgba(255, 107, 107, 0.3);
+                background: #fff;
+                color: #b74053;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 6px 12px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .quick-prompt:hover {
+                transform: translateY(-1px);
+                background: #fff4f6;
+                border-color: #ee5a6f;
+            }
             .dot {
                 width: 6px;
                 height: 6px;
@@ -211,6 +241,7 @@
                 border-top: 1px solid #efefef;
                 display: flex;
                 gap: 10px;
+                align-items: center;
             }
             .chat-input-area input {
                 flex: 1;
@@ -222,6 +253,25 @@
                 transition: 0.3s;
                 font-family: inherit;
             }
+            .chat-input-actions {
+                display: flex;
+                gap: 8px;
+            }
+            .chat-clear-btn {
+                background: #eef2f7;
+                color: #5c6270;
+                border: none;
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: 0.2s;
+                font-size: 13px;
+            }
+            .chat-clear-btn:hover {
+                background: #e1e8f0;
+                transform: scale(1.04);
+            }
             .chat-input-area input:focus {
                 border-color: #ff6b6b;
             }
@@ -229,8 +279,8 @@
                 background: #ff6b6b;
                 color: white;
                 border: none;
-                width: 44px;
-                height: 44px;
+                width: 38px;
+                height: 38px;
                 border-radius: 50%;
                 cursor: pointer;
                 font-weight: 600;
@@ -249,6 +299,10 @@
                     width: calc(100vw - 40px);
                     right: 20px;
                     bottom: 100px;
+                }
+                .chat-btn {
+                    right: 20px;
+                    bottom: 20px;
                 }
             }
         </style>
@@ -273,6 +327,15 @@
                     input.dataset.bound = "true";
                     input.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter') window.sendAiChat();
+                    });
+                }
+
+                if (!window.__aiEscBound) {
+                    window.__aiEscBound = true;
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            window.closeAiChat();
+                        }
                     });
                 }
             }
@@ -353,6 +416,20 @@
                     body.appendChild(errDiv);
                     body.scrollTop = body.scrollHeight;
                 }
+            };
+
+            window.pickAiPrompt = function(prompt) {
+                const input = document.getElementById('ai-chat-input');
+                if (!input) return;
+                window.openAiChat();
+                input.value = prompt;
+                input.focus();
+            };
+
+            window.clearAiChat = function() {
+                const body = document.getElementById('ai-chat-body');
+                if (!body) return;
+                body.innerHTML = '<div class="chat-message bot-message">Chào em! Sensei ở đây để giúp em học tiếng Nhật. Em có câu hỏi gì về ngữ pháp, từ vựng hay Kanji không? 🎓</div>';
             };
         </script>
     </div>

@@ -1,31 +1,200 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/common :: head('Shared ASR Widget')}"></head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('ASR Widget')}" ></head>
 <body>
 <nav th:replace="~{fragments/common :: navbar('courses')}"></nav>
+
 <main class="container py-5">
-  <h1>ASR Widget</h1>
-  <p class="text-muted">Synced placeholder from Shared/_AsrWidget.cshtml.</p>
-  <div class="card"><div class="card-body">
-    <button class="btn btn-primary" id="startAsrBtn">Start Recording</button>
-    <button class="btn btn-secondary" id="stopAsrBtn">Stop</button>
-    <pre class="mt-3 p-3 bg-light border rounded" id="asrOutput">ASR output will appear here...</pre>
-  </div></div>
+    <section class="asr-hero mb-4">
+        <p class="asr-kicker">WHTN-40 • AI UI</p>
+        <h1>Luyện phát âm với ASR Widget</h1>
+        <p>Nói một câu tiếng Nhật để xem kết quả nhận diện giọng nói và độ chính xác theo thời gian thực.</p>
+    </section>
+
+    <section class="asr-panel">
+        <div class="asr-controls">
+            <button class="btn btn-success" id="startAsrBtn">Bắt đầu ghi âm</button>
+            <button class="btn btn-outline-danger" id="stopAsrBtn" disabled>Dừng</button>
+            <button class="btn btn-outline-secondary" id="resetAsrBtn">Làm mới</button>
+        </div>
+
+        <div class="asr-meter mt-3" aria-live="polite">
+            <div class="asr-meter-label">Mức tín hiệu</div>
+            <div class="asr-meter-bar-wrap">
+                <div id="asrMeterBar" class="asr-meter-bar"></div>
+            </div>
+        </div>
+
+        <div id="asrStatus" class="alert alert-light border mt-3">Sẵn sàng ghi âm.</div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-lg-8">
+                <label class="form-label fw-bold">Transcript</label>
+                <pre class="asr-output" id="asrOutput">(chưa có dữ liệu)</pre>
+            </div>
+            <div class="col-lg-4">
+                <label class="form-label fw-bold">Độ chính xác</label>
+                <div class="score-card">
+                    <div id="asrScore" class="score-value">0%</div>
+                    <p class="score-note mb-0">Chỉ số mô phỏng cho UI demo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
+
+<style>
+    .asr-hero {
+        background: radial-gradient(circle at 20% 20%, #1d4ed8, #0f172a 70%);
+        color: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.26);
+    }
+
+    .asr-kicker {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.8;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .asr-panel {
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 18px rgba(20, 24, 33, 0.06);
+    }
+
+    .asr-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .asr-meter-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 6px;
+    }
+
+    .asr-meter-bar-wrap {
+        height: 14px;
+        border-radius: 99px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .asr-meter-bar {
+        height: 100%;
+        width: 0%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+        transition: width 0.2s ease;
+    }
+
+    .asr-output {
+        min-height: 148px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px;
+        white-space: pre-wrap;
+    }
+
+    .score-card {
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        background: #eff6ff;
+        padding: 16px;
+    }
+
+    .score-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1d4ed8;
+    }
+
+    .score-note {
+        font-size: 12px;
+        color: #475569;
+    }
+</style>
+
 <footer th:replace="~{fragments/common :: footer}"></footer>
 <th:block th:replace="~{fragments/common :: scripts}"></th:block>
 <script>
-let recording = false;
-document.getElementById('startAsrBtn').addEventListener('click', () => {
-  recording = true;
-  document.getElementById('asrOutput').textContent = 'Recording started (UI demo).';
-});
-document.getElementById('stopAsrBtn').addEventListener('click', () => {
-  if (recording) {
-    document.getElementById('asrOutput').textContent = 'Recording stopped (UI demo).';
-    recording = false;
-  }
-});
+    const transcripts = [
+        'わたしは にほんごを べんきょうしています。',
+        'きょうは てんきが いいですね。',
+        'あした としょかんへ いきます。',
+        'すみません、もういちど おねがいします。'
+    ];
+
+    let recording = false;
+    let meterTimer = null;
+
+    const startButton = document.getElementById('startAsrBtn');
+    const stopButton = document.getElementById('stopAsrBtn');
+    const resetButton = document.getElementById('resetAsrBtn');
+    const meterBar = document.getElementById('asrMeterBar');
+    const output = document.getElementById('asrOutput');
+    const status = document.getElementById('asrStatus');
+    const score = document.getElementById('asrScore');
+
+    startButton.addEventListener('click', () => {
+        if (recording) {
+            return;
+        }
+
+        recording = true;
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        status.textContent = 'Đang ghi âm... Hãy nói vào micro.';
+        status.className = 'alert alert-info border mt-3';
+        output.textContent = '(đang lắng nghe...)';
+
+        meterTimer = setInterval(() => {
+            meterBar.style.width = `${20 + Math.floor(Math.random() * 80)}%`;
+        }, 180);
+    });
+
+    stopButton.addEventListener('click', () => {
+        if (!recording) {
+            return;
+        }
+
+        recording = false;
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        clearInterval(meterTimer);
+
+        const randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)];
+        const randomScore = 78 + Math.floor(Math.random() * 21);
+
+        meterBar.style.width = '0%';
+        output.textContent = randomTranscript;
+        score.textContent = `${randomScore}%`;
+        status.textContent = 'Hoàn tất nhận diện. Bạn có thể ghi âm lại để luyện tiếp.';
+        status.className = 'alert alert-success border mt-3';
+    });
+
+    resetButton.addEventListener('click', () => {
+        recording = false;
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        clearInterval(meterTimer);
+
+        meterBar.style.width = '0%';
+        output.textContent = '(chưa có dữ liệu)';
+        score.textContent = '0%';
+        status.textContent = 'Sẵn sàng ghi âm.';
+        status.className = 'alert alert-light border mt-3';
+    });
 </script>
 </body>
 </html>

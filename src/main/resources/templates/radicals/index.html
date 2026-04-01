@@ -60,6 +60,10 @@
                         <div class="rstat-lbl">Bộ thủ</div>
                     </div>
                     <div class="rstat">
+                        <div class="rstat-num" id="visibleRad">0</div>
+                        <div class="rstat-lbl">Đang hiển thị</div>
+                    </div>
+                    <div class="rstat">
                         <div class="rstat-num">214</div>
                         <div class="rstat-lbl">Tổng bộ thủ</div>
                     </div>
@@ -98,7 +102,7 @@
             </div>
 
             <div id="emptyR" class="empty-r" style="display:none">
-                <div style="font-size:52px">🈳</div><p>Không tìm thấy bộ thủ nào</p>
+                <div style="font-size:52px">🈳</div><p>Không tìm thấy bộ thủ phù hợp, thử đổi từ khóa hoặc số nét.</p>
             </div>
             <div class="pg-r" id="paginationR"></div>
         </div>
@@ -108,7 +112,7 @@
     const PAGE_R=16;let pageR=1,stFil='all',searchR='';
     function rCards(){return[...document.querySelectorAll('#radGrid .rad-card')]}
     function rVis(){return rCards().filter(el=>{const s=(el.dataset.strokes||'1'),m=(el.dataset.meaning||'').toLowerCase(),r=(el.dataset.radical||'').toLowerCase();const sOk=stFil==='all'||(stFil==='5+'&&parseInt(s)>=5)||s===stFil;return sOk&&(!searchR||r.includes(searchR)||m.includes(searchR))})}
-    function renderR(p){const vs=rVis(),tp=Math.max(1,Math.ceil(vs.length/PAGE_R));pageR=Math.min(Math.max(1,p),tp);const s=(pageR-1)*PAGE_R;rCards().forEach(c=>c.style.display='none');vs.slice(s,s+PAGE_R).forEach(c=>c.style.display='');document.getElementById('emptyR').style.display=vs.length===0?'block':'none';document.getElementById('totalRad').textContent=rCards().length;renderPR(tp)}
+    function renderR(p){const vs=rVis(),tp=Math.max(1,Math.ceil(vs.length/PAGE_R));pageR=Math.min(Math.max(1,p),tp);const s=(pageR-1)*PAGE_R;rCards().forEach(c=>c.style.display='none');vs.slice(s,s+PAGE_R).forEach(c=>c.style.display='');document.getElementById('emptyR').style.display=vs.length===0?'block':'none';document.getElementById('totalRad').textContent=rCards().length;document.getElementById('visibleRad').textContent=vs.length;renderPR(tp)}
     function renderPR(tp){const pg=document.getElementById('paginationR');if(!pg||tp<=1){if(pg)pg.innerHTML='';return}let h=`<button class="pg-r-btn" onclick="renderR(${pageR-1})" ${pageR===1?'disabled':''}>←</button>`;for(let i=1;i<=tp;i++)h+=`<button class="pg-r-btn ${i===pageR?'active':''}" onclick="renderR(${i})">${i}</button>`;h+=`<button class="pg-r-btn" onclick="renderR(${pageR+1})" ${pageR===tp?'disabled':''}>→</button>`;pg.innerHTML=h}
     function setSt(s,btn){stFil=s;document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderR(1)}
     function doRS(){searchR=(document.getElementById('radSearch').value||'').toLowerCase().trim();renderR(1)}

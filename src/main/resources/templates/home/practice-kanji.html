@@ -5,38 +5,117 @@
     <nav th:replace="~{fragments/common :: navbar('courses')}"></nav>
 
     <main class="container py-5">
-        <h2 class="mb-4">Practice Kanji Stroke</h2>
-        <div class="d-flex gap-2 align-items-center flex-wrap">
-            <input type="text" id="kanjiInput" placeholder="Nhap chu Kanji" maxlength="1" class="form-control" style="width: 180px;">
-            <button class="btn btn-primary" id="loadKanjiBtn">Hien thi net</button>
-        </div>
+        <section class="kanji-practice-hero mb-4">
+            <p class="hero-kicker">WHTN-39 • AI UI</p>
+            <h2>Luyện viết Kanji theo từng nét</h2>
+            <p>Nhập một chữ Kanji để xem thứ tự nét và mô phỏng cách viết trực quan ngay trên trình duyệt.</p>
+        </section>
 
-        <svg id="kanjiSvg" width="240" height="240" style="border: 1px solid #ccc; margin-top: 16px;"></svg>
+        <section class="kanji-practice-panel">
+            <div class="d-flex gap-2 align-items-center flex-wrap mb-3">
+                <input type="text" id="kanjiInput" placeholder="Ví dụ: 学" maxlength="1" class="form-control kanji-char-input">
+                <button class="btn btn-primary" id="loadKanjiBtn">Hiển thị nét</button>
+                <button class="btn btn-outline-secondary" id="clearKanjiBtn">Xóa</button>
+            </div>
+
+            <div id="statusBox" class="alert alert-light border" role="status">
+                Nhập Kanji và nhấn "Hiển thị nét" để bắt đầu.
+            </div>
+
+            <div class="kanji-canvas-wrap">
+                <svg id="kanjiSvg" width="320" height="320" viewBox="0 0 320 320" aria-label="Kanji stroke canvas"></svg>
+            </div>
+        </section>
     </main>
+
+    <style>
+        .kanji-practice-hero {
+            background: linear-gradient(120deg, #0f766e, #155e75);
+            color: #fff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(13, 58, 78, 0.2);
+        }
+
+        .hero-kicker {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .kanji-practice-panel {
+            background: #fff;
+            border: 1px solid #e7edf1;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(20, 30, 40, 0.06);
+        }
+
+        .kanji-char-input {
+            max-width: 170px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .kanji-canvas-wrap {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            border: 1px dashed #b9cad8;
+            border-radius: 12px;
+            background: linear-gradient(0deg, #f8fbfe, #f2f7fb);
+            padding: 10px;
+        }
+
+        #kanjiSvg {
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+        }
+    </style>
 
     <footer th:replace="~{fragments/common :: footer}"></footer>
     <th:block th:replace="~{fragments/common :: scripts}"></th:block>
     <script>
         document.getElementById('loadKanjiBtn').addEventListener('click', loadKanji);
+        document.getElementById('clearKanjiBtn').addEventListener('click', clearCanvas);
+        document.getElementById('kanjiInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                loadKanji();
+            }
+        });
 
         async function loadKanji() {
             const character = document.getElementById('kanjiInput').value.trim();
             const svg = document.getElementById('kanjiSvg');
+            const statusBox = document.getElementById('statusBox');
             svg.innerHTML = '';
 
             if (!character) {
-                Notification.warning('Vui long nhap mot chu Kanji.');
+                statusBox.textContent = 'Vui lòng nhập một chữ Kanji hợp lệ.';
+                statusBox.className = 'alert alert-warning border';
                 return;
             }
+
+            statusBox.textContent = 'Đang tải dữ liệu nét viết...';
+            statusBox.className = 'alert alert-info border';
 
             try {
                 const res = await fetch(`/KanjiStroke/GetStrokeData?character=${encodeURIComponent(character)}`);
                 const json = await res.json();
 
                 if (!json.success) {
-                    Notification.error(json.message || 'Khong tim thay du lieu net viet.');
+                    statusBox.textContent = json.message || 'Không tìm thấy dữ liệu nét viết cho Kanji này.';
+                    statusBox.className = 'alert alert-danger border';
                     return;
                 }
+
+                statusBox.textContent = `Đã tải ${json.data.strokes.length} nét cho chữ ${character}.`;
+                statusBox.className = 'alert alert-success border';
 
                 let delay = 0;
                 json.data.strokes.forEach((stroke, index) => {
@@ -71,8 +150,17 @@
                     delay += 700;
                 });
             } catch (error) {
-                Notification.error(`Loi khi tai du lieu net viet: ${error.message}`);
+                statusBox.textContent = `Lỗi khi tải dữ liệu nét viết: ${error.message}`;
+                statusBox.className = 'alert alert-danger border';
             }
+        }
+
+        function clearCanvas() {
+            document.getElementById('kanjiSvg').innerHTML = '';
+            document.getElementById('kanjiInput').value = '';
+            const statusBox = document.getElementById('statusBox');
+            statusBox.textContent = 'Đã xóa nội dung. Bạn có thể nhập Kanji khác để luyện tiếp.';
+            statusBox.className = 'alert alert-light border';
         }
 
         function getStartPoint(d) {
