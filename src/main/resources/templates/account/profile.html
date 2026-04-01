@@ -1,53 +1,245 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/common :: head('Profile - Japanese Learning Web')}"></head>
+<head th:replace="fragments/layout :: head(${pageTitle})"></head>
 <body>
-    <nav th:replace="~{fragments/common :: navbar('profile')}"></nav>
+<style>
+    .profile-container{max-width:800px;margin:0 auto;padding:20px}
+    .profile-header{background:linear-gradient(135deg,#1a2e1a 0%,#1e3a2e 50%,#0f4a3a 100%);border-radius:16px;padding:32px;color:white;margin-bottom:28px;text-align:center}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;background:#fff;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#1e3a2e}
+    .profile-name{font-size:24px;font-weight:800;margin-bottom:4px}
+    .profile-email{font-size:14px;opacity:.8}
+    .profile-stats{display:flex;justify-content:center;gap:24px;margin-top:20px}
+    .stat-item{text-align:center}
+    .stat-num{font-size:28px;font-weight:900}
+    .stat-lbl{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.5px}
+    .profile-content{background:white;border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .section-title{font-size:18px;font-weight:800;color:#111;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .form-group{margin-bottom:20px}
+    .form-label{font-size:14px;font-weight:700;color:#555;margin-bottom:6px;display:block}
+    .form-control{width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;transition:.15s}
+    .form-control:focus{border-color:var(--primary-color)}
+    .form-row{display:flex;gap:16px}
+    .form-row .form-group{flex:1}
+    .btn-save{background:var(--primary-color);color:white;border:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+    .btn-save:hover{background:#1fa99d}
+    .progress-section{margin-top:24px}
+    .progress-item{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding:16px;background:#f8f9fa;border-radius:10px}
+    .progress-icon{width:48px;height:48px;border-radius:8px;background:var(--primary-color);display:flex;align-items:center;justify-content:center;color:white;font-size:20px}
+    .progress-info{flex:1}
+    .progress-title{font-size:15px;font-weight:800;color:#111;margin-bottom:4px}
+    .progress-desc{font-size:12px;color:#666;margin-bottom:8px}
+    .progress-bar{height:6px;border-radius:3px;background:#eee;overflow:hidden}
+    .progress-fill{height:100%;border-radius:3px;background:var(--primary-color);transition:width .3s}
+    .progress-percent{font-size:12px;font-weight:700;color:#555;margin-top:4px}
+    .achievement-section{margin-top:24px}
+    .achievement-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px}
+    .achievement-item{text-align:center;padding:16px;background:#f8f9fa;border-radius:10px;border:2px solid #eee}
+    .achievement-item.unlocked{border-color:var(--primary-color);background:#f0fdf4}
+    .achievement-icon{font-size:24px;margin-bottom:8px}
+    .achievement-title{font-size:12px;font-weight:700;color:#111;margin-bottom:4px}
+    .achievement-desc{font-size:10px;color:#666}
+    .settings-link{display:block;text-align:center;margin-top:20px;padding:12px;border:1.5px solid #ddd;border-radius:8px;text-decoration:none;color:#555;font-weight:700;transition:.15s}
+    .settings-link:hover{border-color:var(--primary-color);color:var(--primary-color)}
+</style>
 
-    <main class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-7">
-                <div class="card shadow">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">My Profile</h2>
-                        <form id="profileForm">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="profileName" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="profileName" value="Learner">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="profileEmail" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="profileEmail" value="learner@example.com">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="profilePhone" class="form-label">Phone</label>
-                                    <input type="text" class="form-control" id="profilePhone" value="">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="profileLevel" class="form-label">JLPT Level</label>
-                                    <select id="profileLevel" class="form-select">
-                                        <option>N5</option>
-                                        <option>N4</option>
-                                        <option>N3</option>
-                                        <option>N2</option>
-                                        <option>N1</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-4">Save Changes</button>
-                        </form>
+    <div th:replace="fragments/sidebar :: sidebar('profile')"></div>
+    <main class="main-content">
+        <div th:replace="fragments/topbar :: topbar('/profile', 'Trang cá nhân', '#', 'Cài đặt')"></div>
+        <div class="container">
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <span th:text="${user != null ? user.username.charAt(0).toString().toUpperCase() : 'U'}">U</span>
+                </div>
+                <div class="profile-name" th:text="${user != null ? user.username : 'Người dùng'}">Người dùng</div>
+                <div class="profile-email" th:text="${user != null ? user.email : 'user@example.com'}">user@example.com</div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-num">0</div>
+                        <div class="stat-lbl">Bài học</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">0</div>
+                        <div class="stat-lbl">Điểm</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">0</div>
+                        <div class="stat-lbl">Ngày học</div>
                     </div>
                 </div>
             </div>
+
+            <!-- Personal Information -->
+            <div class="profile-content">
+                <div class="section-title">
+                    <span>👤</span>
+                    Thông tin cá nhân
+                </div>
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="fullName" th:value="${user != null ? user.fullName : ''}" placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tên hiển thị</label>
+                            <input type="text" class="form-control" id="displayName" th:value="${user != null ? user.username : ''}" placeholder="Tên hiển thị">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" th:value="${user != null ? user.email : ''}" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phone" th:value="${user != null ? user.phone : ''}" placeholder="0123 456 789">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày sinh</label>
+                        <input type="date" class="form-control" id="birthDate" th:value="${user != null ? user.birthDate : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Giới thiệu bản thân</label>
+                        <textarea class="form-control" id="bio" rows="3" placeholder="Hãy kể về bản thân bạn..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-save">💾 Lưu thay đổi</button>
+                </form>
+            </div>
+
+            <!-- Learning Progress -->
+            <div class="profile-content">
+                <div class="section-title">
+                    <span>📊</span>
+                    Tiến độ học tập
+                </div>
+                <div class="progress-section">
+                    <div class="progress-item">
+                        <div class="progress-icon">📖</div>
+                        <div class="progress-info">
+                            <div class="progress-title">Bài học hoàn thành</div>
+                            <div class="progress-desc">Tiến độ học tập của bạn</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:0%"></div>
+                            </div>
+                            <div class="progress-percent">0 / 0 bài học</div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-icon">🎯</div>
+                        <div class="progress-info">
+                            <div class="progress-title">Điểm số trung bình</div>
+                            <div class="progress-desc">Kết quả bài kiểm tra</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:0%;background:#f59e0b"></div>
+                            </div>
+                            <div class="progress-percent">0 điểm</div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-icon">🔥</div>
+                        <div class="progress-info">
+                            <div class="progress-title">Chuỗi ngày học</div>
+                            <div class="progress-desc">Số ngày học liên tiếp</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:0%;background:#ef4444"></div>
+                            </div>
+                            <div class="progress-percent">0 ngày</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="profile-content">
+                <div class="section-title">
+                    <span>🏆</span>
+                    Thành tựu
+                </div>
+                <div class="achievement-section">
+                    <div class="achievement-grid">
+                        <div class="achievement-item unlocked">
+                            <div class="achievement-icon">🎓</div>
+                            <div class="achievement-title">Bắt đầu hành trình</div>
+                            <div class="achievement-desc">Hoàn thành bài học đầu tiên</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📚</div>
+                            <div class="achievement-title">Người học chăm chỉ</div>
+                            <div class="achievement-desc">Học 10 bài học</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">⭐</div>
+                            <div class="achievement-title">Điểm cao</div>
+                            <div class="achievement-desc">Đạt 90 điểm trở lên</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🔥</div>
+                            <div class="achievement-title">Siêng năng</div>
+                            <div class="achievement-desc">Học 7 ngày liên tiếp</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🎯</div>
+                            <div class="achievement-title">Bậc thầy</div>
+                            <div class="achievement-desc">Hoàn thành tất cả bài học</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🌟</div>
+                            <div class="achievement-title">Xuất sắc</div>
+                            <div class="achievement-desc">Đạt điểm tối đa</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Link -->
+            <a href="/account/settings" class="settings-link">
+                ⚙️ Cài đặt tài khoản
+            </a>
         </div>
     </main>
 
-    <footer th:replace="~{fragments/common :: footer}"></footer>
-    <th:block th:replace="~{fragments/common :: scripts}"></th:block>
-    <script>
-        document.getElementById('profileForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+<script>
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.querySelector('.btn-save');
+        btn.disabled = true;
+        btn.textContent = 'Đang lưu...';
+
+        const data = {
+            fullName: document.getElementById('fullName').value.trim(),
+            displayName: document.getElementById('displayName').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            birthDate: document.getElementById('birthDate').value,
+            bio: document.getElementById('bio').value.trim()
+        };
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            
+            if (res.ok) {
+                alert('Cập nhật thông tin thành công!');
+            } else {
+                const error = await res.json();
+                alert('Lỗi: ' + (error.message || 'Không thể cập nhật'));
+            }
+        } catch(err) {
+            alert('Lỗi kết nối mạng');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💾 Lưu thay đổi';
+        }
+    });
+</script>
+</body>
+</html>
             Notification.success('Profile UI is synchronized. Integrate profile API next.');
         });
     </script>
